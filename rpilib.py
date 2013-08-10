@@ -124,3 +124,10 @@ class LCD16x2(object):
         self._gpioE.unexport()
         for gpio in self._gpios:
             gpio.unexport()
+
+    def write4bits(self, bits, charMode):
+        """ Sent command to the LCD """
+        pass
+
+    def convertSec(self, microSec):
+        return microSec / float(1000000)
