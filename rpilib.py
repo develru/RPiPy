@@ -2,6 +2,7 @@ class GPIOrtx(object):
 
     def __init__(self, io='4'):
             self._gpioNum = io
+            # state 0 is not initialized
             self._state = 0
 
     def export(self):
@@ -46,11 +47,13 @@ class GPIOrtx(object):
                 self._gpioNum))
 
     def setup(self, direction):
-        self.export()
+        if self._state = 0:
+            self.export()
         self.setDirection(direction)
 
 
 class LCD16x2(object):
+
     # commands
     LCD_CLEARDISPLAY = 0x01
     LCD_RETURNHOME = 0x02
@@ -102,3 +105,22 @@ class LCD16x2(object):
     LCD_1LINE = 0x00
     LCD_5x10DOTS = 0x04
     LCD_5x8DOTS = 0x00
+
+    def __init__(self, pinRS=25, pinE=24, pinsDB=[23, 17, 21, 22]):
+        self._gpioRS = GPIOrtx(pinRS)
+        self._gpioE = GPIOrtx(pinE)
+        self._gpios = []
+        for gpio in pinsDB:
+            self._gpios.append(GPIOrtx(gpio))
+
+    def __enter__(self):
+        self._gpioRS.setup('out')
+        self._gpioE.setup('out')
+        for gpio in self._gpios:
+            gpio.setup('out')
+
+    def __exit__(self, type, value, traceback):
+        self._gpioRS.unexport()
+        self._gpioE.unexport()
+        for gpio in self._gpios:
+            gpio.unexport()
