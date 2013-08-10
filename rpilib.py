@@ -1,3 +1,6 @@
+from time import sleep
+
+
 class GPIOrtx(object):
 
     def __init__(self, io='4'):
@@ -47,7 +50,7 @@ class GPIOrtx(object):
                 self._gpioNum))
 
     def setup(self, direction):
-        if self._state = 0:
+        if self._state == 0:
             self.export()
         self.setDirection(direction)
 
@@ -125,9 +128,38 @@ class LCD16x2(object):
         for gpio in self._gpios:
             gpio.unexport()
 
-    def write4bits(self, bits, charMode):
+    def write4bits(self, bits, charMode='0'):
         """ Sent command to the LCD """
-        pass
+        sleep(self.convertSec(1000))
+
+        bits = bin(bits)[2:].zfill(8)
+        self._gpioRS.writeValue(charMode)
+
+        for gpio in self._gpios:
+            gpio.writeValue('0')
+
+        for i in range(4):
+            if bits[i] == '1':
+                self._gpios[::-1][i].writeValue('1')
+
+        self.pulseEnable()
+
+        for gpio in self._gpios:
+            gpio.writeValue('0')
+
+        for i in range(4, 8):
+            if bits[i] == '1':
+                self._gpios[::-1][i-4].writeValue('1')
+
+        self.pulseEnable()
 
     def convertSec(self, microSec):
         return microSec / float(1000000)
+
+    def pulseEnable(self):
+        self._gpioE.writeValue('0')
+        sleep(self.convertSec(1))
+        self._gpioE.writeValue('1')
+        sleep(self.convertSec(1))
+        self._gpioE.writeValue('0')
+        sleep(self.convertSec(1))
